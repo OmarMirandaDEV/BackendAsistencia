@@ -8,5 +8,5 @@ class Student(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     carne = Column(String(50), unique=True, nullable=False)
-    section_id = Column(Integer, ForeignKey("sections.section_id"))
+    section_id = Column(Integer, ForeignKey("section.section_id"))
     registration_date = Column(TIMESTAMP)

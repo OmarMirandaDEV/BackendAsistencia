@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from app.config.database import engine, Base
 from app.models import *
 from app.routes import teacher_routes
+from app.routes import course_routes
 
 app = FastAPI()
 
 app.include_router(teacher_routes.router)
+app.include_router(course_routes.router)
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
