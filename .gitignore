@@ -1,4 +1,11 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
-*
+# Entorno virtual
+venv/
 
+# Python
+__pycache__/
+*.pyc
+
+# Variables de entorno
 .env
+
+.vscode/
