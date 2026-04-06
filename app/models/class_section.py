@@ -6,4 +6,4 @@ class Section(Base):
 
     section_id = Column(Integer, primary_key=True, index=True)
     section_name = Column(String(20), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"))
+    course_id = Column(Integer, ForeignKey("course.course_id"))

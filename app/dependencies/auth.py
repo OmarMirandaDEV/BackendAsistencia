@@ -1,14 +1,7 @@
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.utils.jwt import verify_token
 
-security = HTTPBearer()
-
-def get_current_teacher(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-
-    payload = verify_token(token)
-
+def get_current_teacher(payload: dict = Depends(verify_token)):
     if payload is None:
         raise HTTPException(status_code=401, detail="Token inválido")
 

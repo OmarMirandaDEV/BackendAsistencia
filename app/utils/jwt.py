@@ -1,9 +1,13 @@
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 SECRET_KEY = "tu_clave_secreta"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+security = HTTPBearer()
 
 
 def create_access_token(data: dict):
@@ -13,9 +17,11 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def verify_token(token: str):
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        return payload  
     except JWTError:
-        return None
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
