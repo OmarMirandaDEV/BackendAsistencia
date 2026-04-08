@@ -10,6 +10,7 @@ from app.routes import face_routes
 from app.routes import recognition_routes
 from app.routes import attendance_routes
 from app.routes import group_attendance_routes
+from app.routes import report_routes
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
@@ -23,6 +24,7 @@ app.include_router(face_routes.router)
 app.include_router(recognition_routes.router)
 app.include_router(attendance_routes.router)
 app.include_router(group_attendance_routes.router)
+app.include_router(report_routes.router)
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
