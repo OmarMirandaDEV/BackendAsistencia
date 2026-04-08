@@ -11,6 +11,7 @@ from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_teacher
 
 from app.config.supabase import supabase
+from app.utils.face_utils import generate_face_descriptor
 
 router = APIRouter(prefix="/faces", tags=["Faces"])
 
@@ -54,11 +55,19 @@ def upload_face(
     # Generar nombre único
     file_extension = file.filename.split(".")[-1]
     file_name = f"{uuid.uuid4()}.{file_extension}"
-
-    file_path = f"{file_name}"  
+    file_path = file_name
 
     # Leer archivo
     file_bytes = file.file.read()
+
+    # Generar descriptor facial
+    descriptor = generate_face_descriptor(file_bytes)
+
+    if descriptor is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No se detectó ningún rostro en la imagen"
+        )
 
     # Subir a Supabase
     supabase.storage.from_("faces").upload(file_path, file_bytes)
@@ -70,7 +79,7 @@ def upload_face(
     new_face = Face(
         student_id=student_id,
         image_url=image_url,
-        facial_descriptor=None
+        facial_descriptor=str(descriptor)  
     )
 
     db.add(new_face)
