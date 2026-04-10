@@ -38,3 +38,48 @@ def create_section(
         "message": "Sección creada correctamente",
         "section_id": new_section.section_id
     }
+
+@router.get("/course/{course_id}")
+def get_sections_by_course(
+    course_id: int,
+    db: Session = Depends(get_db),
+    teacher_data: dict = Depends(verify_token)
+):
+    teacher_id = teacher_data["id"]
+
+    # Validar que el curso sea del profesor
+    course = db.query(Course).filter(
+        Course.course_id == course_id,
+        Course.teacher_id == teacher_id
+    ).first()
+
+    if not course:
+        raise HTTPException(status_code=404, detail="No autorizado")
+
+    sections = db.query(Section).filter(
+        Section.course_id == course_id
+    ).all()
+
+    return sections
+
+@router.get("/")
+def get_sections(
+    db: Session = Depends(get_db),
+    teacher_data: dict = Depends(verify_token)
+):
+    teacher_id = teacher_data["id"]
+
+    sections = db.query(Section, Course).join(Course).filter(
+        Course.teacher_id == teacher_id
+    ).all()
+
+    result = []
+    for section, course in sections:
+        result.append({
+            "section_id": section.section_id,
+            "section_name": section.section_name,
+            "course_id": course.course_id,
+            "course_name": course.course_name  # 🔥 AQUÍ ESTÁ LA MAGIA
+        })
+
+    return result

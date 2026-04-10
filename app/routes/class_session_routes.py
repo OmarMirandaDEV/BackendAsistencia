@@ -70,3 +70,40 @@ def create_class_session(
         "message": "Clase creada correctamente",
         "session_id": new_session.session_id
     }
+
+@router.get("/course/{course_id}")
+def get_sessions_by_course(
+    course_id: int,
+    db: Session = Depends(get_db),
+    teacher_data: dict = Depends(get_current_teacher)
+):
+    teacher_id = teacher_data["id"]
+
+    # Validar curso
+    course = db.query(Course).filter(
+        Course.course_id == course_id,
+        Course.teacher_id == teacher_id
+    ).first()
+
+    if not course:
+        raise HTTPException(status_code=404, detail="No autorizado")
+
+    sessions = db.query(ClassSession).filter(
+        ClassSession.course_id == course_id
+    ).all()
+
+    return sessions
+
+@router.get("/")
+def get_all_sessions(
+    db: Session = Depends(get_db),
+    teacher_data: dict = Depends(get_current_teacher)
+):
+    teacher_id = teacher_data["id"]
+
+    # JOIN para traer solo sesiones de cursos del profesor
+    sessions = db.query(ClassSession).join(Course).filter(
+        Course.teacher_id == teacher_id
+    ).all()
+
+    return sessions

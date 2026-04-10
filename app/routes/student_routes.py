@@ -57,12 +57,10 @@ def create_student(
 
     return {
         "message": "Estudiante creado correctamente",
-        "student": {
-            "id": new_student.student_id,
-            "name": f"{new_student.first_name} {new_student.last_name}",
-            "carne": new_student.carne,
-            "section_id": new_student.section_id
-        }
+        "student_id": new_student.student_id, 
+        "name": f"{new_student.first_name} {new_student.last_name}",
+        "carne": new_student.carne,
+        "section_id": new_student.section_id
     }
 
 # OBTENER TODO EL ÁRBOL DEL TEACHER

@@ -5,6 +5,7 @@ from app.models.course import Course
 from app.schemas.course_schema import CourseCreate
 from app.dependencies.database import get_db
 from app.dependencies.auth import get_current_teacher
+from app.utils.jwt import verify_token 
 
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
@@ -32,3 +33,12 @@ def create_course(
             "name": new_course.course_name
         }
     }
+
+@router.get("/")
+def get_courses(db: Session = Depends(get_db), user=Depends(verify_token)):
+    
+    teacher_id = user["id"]
+
+    courses = db.query(Course).filter(Course.teacher_id == teacher_id).all()
+
+    return courses
