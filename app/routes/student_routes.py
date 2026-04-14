@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.models.student import Student
 from app.models.class_section import Section
@@ -20,6 +21,10 @@ def create_student(
     db: Session = Depends(get_db),
     current_teacher = Depends(get_current_teacher)
 ):
+    teacher_id = current_teacher.get("id") if isinstance(current_teacher, dict) else None
+    if teacher_id is None:
+        raise HTTPException(status_code=401, detail="Token inválido: id de profesor no encontrado")
+
     # 1. Buscar sección
     section = db.query(Section).filter(
         Section.section_id == data.section_id
@@ -37,13 +42,21 @@ def create_student(
         raise HTTPException(status_code=404, detail="Curso no encontrado")
 
     # 3. Validar que el curso pertenece al teacher logueado
-    if course.teacher_id != current_teacher["id"]:
+    if course.teacher_id != teacher_id:
         raise HTTPException(
             status_code=403,
             detail="No tienes permiso para agregar estudiantes a esta sección"
         )
 
-    # 4. Crear estudiante
+    # 4. Validar duplicado de carné antes de insertar
+    existing_student = db.query(Student).filter(
+        Student.carne == data.carne
+    ).first()
+
+    if existing_student:
+        raise HTTPException(status_code=409, detail="El carné ya está registrado")
+
+    # 5. Crear estudiante
     new_student = Student(
         first_name=data.first_name,
         last_name=data.last_name,
@@ -51,9 +64,16 @@ def create_student(
         section_id=data.section_id
     )
 
-    db.add(new_student)
-    db.commit()
-    db.refresh(new_student)
+    try:
+        db.add(new_student)
+        db.commit()
+        db.refresh(new_student)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="No se pudo crear el estudiante: carné duplicado")
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error de base de datos al crear estudiante")
 
     return {
         "message": "Estudiante creado correctamente",
