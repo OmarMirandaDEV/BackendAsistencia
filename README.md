@@ -18,6 +18,7 @@ docker run -e DATABASE_URL="postgresql://..." -e SUPABASE_URL="..." -e SUPABASE_
 
 Opciones de despliegue y dependencias:
 - Si necesitas reconocimiento facial (usa `face-recognition` native), despliega con **Docker**. He incluido `requirements.docker.txt` y `Dockerfile` para eso.
+- Verifica que la variable `FACE_RECO_ENABLED` no esté en `0` en Render (si no existe, por defecto queda habilitado).
 - Si prefieres no usar dependencias nativas y desplegar directamente en Render sin Docker, el proyecto ahora puede arrancar sin la funcionalidad de reconocimiento facial. En ese caso la ruta relacionada devolverá 503 con un mensaje indicando que la funcionalidad no está disponible.
 
 Para desplegar sin Docker en Render, selecciona Environment `Python` y usa `requirements.txt` (sin `face-recognition`). Para soporte completo de face-recognition, elige Docker y `requirements.docker.txt`.

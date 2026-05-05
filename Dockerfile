@@ -7,7 +7,10 @@ ENV PYTHONUNBUFFERED=1
 # Install minimal system deps (psycopg2 requires libpq-dev)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       gcc build-essential libpq-dev libssl-dev libffi-dev \
+         gcc g++ build-essential cmake pkg-config \
+         libpq-dev libssl-dev libffi-dev \
+         libopenblas-dev liblapack-dev \
+         libjpeg-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.docker.txt ./
