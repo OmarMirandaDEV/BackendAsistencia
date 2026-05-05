@@ -7,6 +7,6 @@ numpy
 Pillow
 passlib[bcrypt]
 python-jose[cryptography]
-pydantic
+pydantic[email]
 psycopg2-binary
 python-multipart
