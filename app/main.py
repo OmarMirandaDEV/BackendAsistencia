@@ -13,12 +13,19 @@ from app.routes import attendance_routes
 from app.routes import group_attendance_routes
 from app.routes import report_routes
 from fastapi.staticfiles import StaticFiles
+import os
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+# Get allowed origins from env, default to localhost + common Render patterns
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", 
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
+
+# Also allow all Render deployments (*.onrender.com)
+origins = allowed_origins + [
+    "https://*.onrender.com",
+    "*"  # Allow all for now (can restrict later)
 ]
 
 app.add_middleware(
