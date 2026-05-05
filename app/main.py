@@ -47,14 +47,26 @@ app.include_router(attendance_routes.router)
 app.include_router(group_attendance_routes.router)
 app.include_router(report_routes.router)
 
-# Crear tablas
-Base.metadata.create_all(bind=engine)
+# Flag para lazy init de tablas
+_tables_created = False
+
+def ensure_tables():
+    """Crea las tablas la primera vez que se necesiten (lazy init)."""
+    global _tables_created
+    if not _tables_created:
+        try:
+            Base.metadata.create_all(bind=engine)
+            _tables_created = True
+        except Exception as e:
+            print(f"Warning: Could not create tables at startup: {e}")
 
 # Probar conexión
 @app.get("/")
 def test_connection():
     try:
+        ensure_tables()  # Intenta crear tablas la primera vez
         conn = engine.connect()
-        return {"message": "Conectado a la base de datos"}
-    except:
-        return {"message": "Error de conexión"}
+        conn.close()
+        return {"status": "ok", "message": "Conectado a la base de datos"}
+    except Exception as e:
+        return {"status": "error", "message": f"Error de conexión: {str(e)}"}
