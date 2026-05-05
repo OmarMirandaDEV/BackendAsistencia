@@ -4,17 +4,16 @@ WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
 
-# Install system deps for some wheels (adjust if your requirements need more)
+# Install minimal system deps (psycopg2 requires libpq-dev)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       build-essential gcc cmake libpq-dev libssl-dev libffi-dev \
-       libopenblas-dev liblapack-dev libx11-6 libgtk-3-0 libboost-all-dev \
+       gcc build-essential libpq-dev libssl-dev libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.docker.txt ./
 
 RUN python -m pip install --upgrade pip
-# Use docker-specific requirements if present, otherwise fall back to requirements.txt
+# Use docker-specific requirements if present and non-empty, otherwise fall back to requirements.txt
 RUN /bin/sh -c "if [ -f requirements.docker.txt ] && [ -s requirements.docker.txt ]; then pip install --no-cache-dir -r requirements.docker.txt; else pip install --no-cache-dir -r requirements.txt; fi"
 
 COPY . .
