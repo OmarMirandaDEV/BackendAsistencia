@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+sqlalchemy
+supabase
+face-recognition
+numpy
+Pillow
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic
+psycopg2-binary
+python-multipart

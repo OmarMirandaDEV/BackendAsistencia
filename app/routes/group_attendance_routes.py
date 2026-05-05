@@ -16,7 +16,12 @@ def recognize_group(
 ):
     image_bytes = file.file.read()
 
-    descriptors = generate_multiple_descriptors(image_bytes)
+    try:
+        descriptors = generate_multiple_descriptors(image_bytes)
+    except RuntimeError as e:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=503, detail=str(e))
 
     if not descriptors:
         return {"message": "No se detectaron rostros"}

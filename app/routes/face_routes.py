@@ -60,8 +60,11 @@ def upload_face(
     # Leer archivo
     file_bytes = file.file.read()
 
-    # Generar descriptor facial
-    descriptor = generate_face_descriptor(file_bytes)
+    # Generar descriptor facial (puede lanzar RuntimeError si no está disponible)
+    try:
+        descriptor = generate_face_descriptor(file_bytes)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
     if descriptor is None:
         raise HTTPException(
